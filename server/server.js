@@ -9,6 +9,8 @@ const User = require("./models/User")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 
+const auth = require("./middleware/auth")
+
 
 
 const app = express()
@@ -27,6 +29,10 @@ mongoose.connect(process.env.MONGOURI, {
 
 app.get("/", (req, res) => {
     res.send("Api Running")
+})
+
+app.get("/api/protected", auth, (req, res) => {
+  res.json({message: `Welcome, your user ID is ${req.user.userId}!`})
 })
 
 
@@ -77,7 +83,6 @@ app.post("/api/login", async (req, res) => {
   });
 
 })
-
 
 app.listen(5000, () => {
     console.log("Server Running on Port 5000")
