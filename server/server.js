@@ -4,6 +4,13 @@ const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
 
+// User Auth
+const User = require("./models/User")
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+
+
+
 const app = express()
 
 // Middleware: parse JSON bodies
@@ -21,6 +28,56 @@ mongoose.connect(process.env.MONGOURI, {
 app.get("/", (req, res) => {
     res.send("Api Running")
 })
+
+
+app.post("/api/register", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({message: "Please Enter All Required Fields"})
+  }
+
+  const userExists = await User.findOne({email});
+
+  if (userExists) {
+    return res.status(400).json({message: "User already exists."})
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10)
+  
+  const user = new User({ name, email, hashedPassword})
+  await user.save()
+
+  res.status(201).json({message: "User Registered Successfully"})
+})
+
+app.post("/api/login", async (req, res) => {
+  const {email, password} = req.body
+
+  if (!email || !password) {
+    return res.status(400).json({message: "Please enter all fields"})
+  }
+
+  const user = await User.findOne({email})
+  if (!user) {
+    return res.status(400).json({message: "Invalid Credentials"})
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password)
+  if (!isMatch) {
+    return res.status(400).json({message: "Invalid Credentials"})
+  }
+
+  // JWT Token
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  res.json({
+    token,
+    user: { id: user._id, name: user.name, email: user.email }
+  });
+
+})
+
 
 app.listen(5000, () => {
     console.log("Server Running on Port 5000")
