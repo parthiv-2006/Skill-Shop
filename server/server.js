@@ -1,5 +1,6 @@
 require("dotenv").config()
 
+const productRoutes = require("./routes/productRoutes")
 const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
@@ -10,8 +11,6 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 
 const auth = require("./middleware/auth")
-
-
 
 const app = express()
 
@@ -26,6 +25,8 @@ mongoose.connect(process.env.MONGOURI, {
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
+
+app.use("/api/products", productRoutes)
 
 app.get("/", (req, res) => {
     res.send("Api Running")
