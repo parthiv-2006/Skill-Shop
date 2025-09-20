@@ -32,29 +32,38 @@ app.get("/", (req, res) => {
 })
 
 app.get("/api/protected", auth, (req, res) => {
-  res.json({message: `Welcome, your user ID is ${req.user.userId}!`})
+  res.json({message: `Welcome, your user ID is ${req.user.userId}!`, userId: req.user.userId})
 })
 
 
 app.post("/api/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
+    
+    console.log('Registration attempt:', { name, email, hasPassword: !!password });
 
-  if (!name || !email || !password) {
-    return res.status(400).json({message: "Please Enter All Required Fields"})
+    if (!name || !email || !password) {
+      return res.status(400).json({message: "Please Enter All Required Fields"})
+    }
+
+    const userExists = await User.findOne({email});
+
+    if (userExists) {
+      return res.status(400).json({message: "User already exists."})
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+    
+    console.log('About to create user with:', { name, email, hasHashedPassword: !!hashedPassword });
+    
+    const user = new User({ name, email, password: hashedPassword})
+    await user.save()
+
+    res.status(201).json({message: "User Registered Successfully"})
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({message: "Server error during registration", error: error.message})
   }
-
-  const userExists = await User.findOne({email});
-
-  if (userExists) {
-    return res.status(400).json({message: "User already exists."})
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10)
-  
-  const user = new User({ name, email, hashedPassword})
-  await user.save()
-
-  res.status(201).json({message: "User Registered Successfully"})
 })
 
 app.post("/api/login", async (req, res) => {
