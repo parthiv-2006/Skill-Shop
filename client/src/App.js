@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
-import Register from './components/Register.js'
-import Login from './components/Login.js'
+import Register from './components/Register'
+import ProductList from './components/ProductList'
+import Login from './components/Login'
 import axios from 'axios'
 
 const App = () => {
@@ -37,6 +38,7 @@ const App = () => {
             localStorage.removeItem('token')
             setUser(null)
           }}>Logout</button>
+          <ProductList />
         </div>
       ): 
       (<>
