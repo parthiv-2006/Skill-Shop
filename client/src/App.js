@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import Register from './Register.js'
-import Login from './Login.js'
+import Register from './components/Register.js'
+import Login from './components/Login.js'
 import axios from 'axios'
 
 const App = () => {
