@@ -2,11 +2,13 @@ import React, {useState, useEffect} from 'react'
 import Register from './components/Register'
 import ProductList from './components/ProductList'
 import Login from './components/Login'
+import AddProduct from './components/AddProduct'
 import axios from 'axios'
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(true)
   const [user, setUser] = useState(null)
+  const [refresh, setRefresh] = useState(false)
 
   useEffect(() => {
     // On first load, check for stored JWT
@@ -38,7 +40,9 @@ const App = () => {
             localStorage.removeItem('token')
             setUser(null)
           }}>Logout</button>
-          <ProductList />
+
+          <AddProduct onProductAdded={() => setRefresh(!refresh)} />
+          <ProductList refresh={refresh}/>
         </div>
       ): 
       (<>
