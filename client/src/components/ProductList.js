@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import axios from 'axios'
 
 
-const ProductList = () => {
+const ProductList = ({refresh}) => {
     const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -16,7 +16,7 @@ const ProductList = () => {
             setProducts([])
             setLoading(false)
         })
-    }, [])
+    }, [refresh])
 
     if (loading) return <p>Loading Products...</p>
 
